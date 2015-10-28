@@ -8,7 +8,7 @@
 
 extern float samplingRate;
 //const float samplingRate = 44000; //define the sampling rate here
-unsigned long ISRvalue = &interp_isr; //define the ISR to be used here
+unsigned long ISRvalue = &reverb_isr; //define the ISR to be used here
 
 int main(void){
 

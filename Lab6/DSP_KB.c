@@ -133,27 +133,8 @@ interrupt void interp_isr(void){
 	value = ADC_get();
 	//DAC_set(value);
 
-	if(SRAMaddress <= 0x29FFFF){
+	if(SRAMaddress <= 0x27FFFF){
 		*SRAMaddress = value;
-
-
-		if(interpHold == 2){
-
-			interpHold = 0;
-			SRAMaddress--;
-			unsigned int value2 = *SRAMaddress;
-			SRAMaddress++;
-			test = value2 + value;
-			test = test/2;
-			value2 = (unsigned int)test;
-
-			*SRAMaddress = value2;
-			SRAMaddress++;
-			*SRAMaddress = value;
-
-
-		}
-		interpHold++;
 		SRAMaddress++;
 
 	}
@@ -161,6 +142,8 @@ interrupt void interp_isr(void){
 		DINT;
 		SRAMaddress = 0x260000;
 		a = 1;
+
+		interpolateAlgorithm(*SRAMaddress);
 		changeFunctions(samplingRate*1.5);
 
 		EINT;   // Enable Global interrupt INTM
@@ -436,6 +419,22 @@ void outputEnable(){
 	GpioCtrlRegs.GPAMUX2.all |= 0x00FC0000;
 	GpioCtrlRegs.GPAMUX2.all &= 0xFFFFFF00;
 	GpioCtrlRegs.GPAMUX2.all |= 0x00000051;
+
+}
+
+void interpolateAlgorithm(){
+	unsigned int temp = *SRAMaddress; //when it first enters the while loop
+									// it holds the value of the first entry
+
+	while(SRAMaddress != 0x29FFFF){
+
+
+
+	}
+
+
+
+
 
 }
 

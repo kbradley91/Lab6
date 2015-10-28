@@ -39,6 +39,7 @@ void outputEnable();
 void kp_enable();
 int keypadScan();
 
+void interpolateAlgorithm(unsigned int temp);
 
 void ADC_set(int a, int b);
 void initADC();
