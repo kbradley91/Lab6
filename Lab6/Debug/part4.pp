@@ -30,6 +30,7 @@ part4.obj: C:/tidcs/c28/DSP2833x/v131/DSP2833x_common/include/DSP2833x_DefaultIS
 part4.obj: ../DSP_KB.h
 part4.obj: C:/ti/ccsv6/tools/compiler/ti-cgt-c2000_6.4.2/include/string.h
 part4.obj: C:/ti/ccsv6/tools/compiler/ti-cgt-c2000_6.4.2/include/linkage.h
+part4.obj: C:/ti/ccsv6/tools/compiler/ti-cgt-c2000_6.4.2/include/math.h
 
 ../part4.c: 
 C:/tidcs/c28/DSP2833x/v131/DSP2833x_common/include/DSP28x_Project.h: 
@@ -61,3 +62,4 @@ C:/tidcs/c28/DSP2833x/v131/DSP2833x_common/include/DSP2833x_DefaultISR.h:
 ../DSP_KB.h: 
 C:/ti/ccsv6/tools/compiler/ti-cgt-c2000_6.4.2/include/string.h: 
 C:/ti/ccsv6/tools/compiler/ti-cgt-c2000_6.4.2/include/linkage.h: 
+C:/ti/ccsv6/tools/compiler/ti-cgt-c2000_6.4.2/include/math.h: 
