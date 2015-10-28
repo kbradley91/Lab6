@@ -7,20 +7,24 @@
 
 
 extern float samplingRate;
+extern long bufferLength; //I dont think this needs to be declared external but yolo
+
 //const float samplingRate = 44000; //define the sampling rate here
-unsigned long ISRvalue = &interp_isr; //define the ISR to be used here
+unsigned long ISRvalue = &audioEcho_isr; //define the ISR to be used here
 
 int main(void){
 
 	enablethings(ISRvalue, samplingRate); //passes the ISR to the timer intialze function
 
-	//TODO: can use timerINIT() in order to change ISRs if need be
+
 
 
 	unsigned int value = 0;
 
 	int oldvalue = 0;
 	while(1){
+		//constantly scanning the keypad to set the echo value
+		//TODO: could also use this same method to set the reverbBuffer
 
 		value = keypadScan();
 		*outputPORT = value;
@@ -47,26 +51,9 @@ int main(void){
 }
 
 
-void setDelay(unsigned int value){
-	// This function assumes that the frequency of the interrupt is 44kHz
-	if(value == 2){
-		delaytime = 44000*0.25;
-	}
-	else if(value == 3){
-		delaytime = 44000*0.5;
-	}
-	else if(value == 4){
-		delaytime = 44000*0.75;
-	}
-	else if(value == 5){
-		delaytime = 44000*1;
-	}
-	else{
-		delaytime = 0;
-	}
-	bufferLength = delaytime;
-}
 void SRAMwrite(unsigned int value){
+	//basically just using this function in order to intialze memory to 0 so it workslol
+
 	SRAMaddress = 0x200000; //reintializing value just in case
 
 	while(SRAMaddress != 0x2FFFFF){
@@ -91,6 +78,9 @@ void SRAMwrite(unsigned int value){
 //}
 
 void changeFrequency(long freq){
+	//changing the frequency of the interrupt
+	//I think this is only used when the DAC is set
+	//TODO: nope not even used?
 	EALLOW;
 	ConfigCpuTimer(&CpuTimer1, 150,  1000000*1/freq*.5);
 	CpuTimer1Regs.TCR.bit.TSS = 0;
@@ -98,6 +88,7 @@ void changeFrequency(long freq){
 }
 
 void FreqSet(unsigned int value){
+	//TODO: old code?
 
 	if(value == 7){
 		changeFrequency(50000);
@@ -123,6 +114,7 @@ void FreqSet(unsigned int value){
 
 
 void enablethings(unsigned long ISRlocation, float samplingRate){
+	//tiding things up
 
 	DisableDog();
 	EALLOW;

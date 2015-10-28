@@ -27,7 +27,7 @@ static int a = 0; //variable for the timer interrupt vector change
 static int decimate = 0;
 static int b = 0;
 static unsigned int delaytime = 0;
-static long bufferLength = 44000*0;
+static long bufferLength = 44000;
 static unsigned long reverbBuffer = 44000*0.3;
 static int interpHold = 1;
 //const float samplingRate = 44000;
@@ -47,6 +47,7 @@ unsigned int ADC_get();
 void DAC_init();
 void DAC_set(unsigned int data);
 void delayLONG();
+void setDelay(unsigned int value);
 
 
 void changeFunctions(float samplingRate);

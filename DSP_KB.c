@@ -6,6 +6,34 @@
 
 
 
+
+void setDelay(unsigned int value){
+	// This function assumes that the frequency of the interrupt is 44kHz
+	// could pass this in more modularly with sampling rate that is defined in DSP_KB.h
+	// dont feel like breaking code
+
+	//TODO: set constant for reverb buffer in this method as well
+
+	if(value == 2){
+		bufferLength = 44000*0.25;
+	}
+	else if(value == 3){
+		bufferLength = 44000*0.5;
+	}
+	else if(value == 4){
+		bufferLength = 44000*0.75;
+	}
+	else if(value == 5){
+		bufferLength = 44000*1;
+	}
+	else{
+		bufferLength = 0;
+	}
+	//bufferLength = delaytime;
+}
+
+
+
 /* Digital Mixing:
  *
  * This code takes a value into the ADC, and write the value to memory, when the first sample
@@ -119,9 +147,8 @@ interrupt void DAC_isr(void){
 }
 
 /*
- * interp_isr interpolates the values in memory by writing twice for a single value, this allows us to use memory in order
- * to save processor space by needing only half the interrupt triggering time to hear the same output if we didn't
- * interpolate
+ * interp_isr interpolates the values in memory by writing a value
+ * to every other memory location leaving a space for the interpolated value
  */
 
 
@@ -167,7 +194,7 @@ interrupt void interp_isr(void){
  * that occured in the same spot, N samples ago, where N is the length of the buffer. Once the sample is read
  * the value that was read in stores the input from the ADC in the current memory location
  *
- * this follows a DTFT formula as below: (I believe)
+ * this follows a DTFT(?) formula as below: (I believe)
  * y[n] = x[n] + a*x[n-N] {where n is always the current sample, and N is the length of the buffer}
  *
  * If I understand signals correctly, which I don't this is a FIR filter
@@ -184,7 +211,7 @@ interrupt void audioEcho_isr(void){
 	*SRAMaddress = value;
 	SRAMaddress++;
 
-	output = (value+0.5*test2)/2;
+	output = (value+0.9*test2)/2;
 
 	DAC_set((unsigned int)output);
 
@@ -212,6 +239,8 @@ interrupt void audioEcho_isr(void){
 }
 
 /*
+ * reverb_isr:
+ *
  * This is where things get real funky. Here we read in the ADC value and store the variable,
  * we then read in the value stored at the SRAM location. This value is the value that occured buffer length samples ago
  *
@@ -249,13 +278,15 @@ interrupt void reverb_isr(void){
 
 
 
-
-
-
-
-
-
 }
+
+/*
+ * decimate_isr:
+ *
+ * Here we use a counter value in order to only store every 5th sample into memory
+ * then resetting the counter value. We also pass to the DAC ISR a sampling rate of 2 times
+ * the sampling rate of this isr, should probably be different but whatever
+ */
 
 interrupt void decimate_isr(void){
 	EALLOW;
@@ -274,7 +305,7 @@ interrupt void decimate_isr(void){
 		DINT;
 		SRAMaddress = 0x260000;
 		a = 1;
-		changeFunctions(samplingRate*2);
+		changeFunctions(samplingRate*2); //this value passed normally seems to be 4-5 times the sampling rate but woo signals
 		EINT;   // Enable Global interrupt INTM
 		ERTM;   // Enable Global realtime interrupt DBGM
 	}
@@ -292,6 +323,10 @@ interrupt void decimate_isr(void){
 
 
 }
+
+
+//TODO: Dinosaur timer intialzation function, would be helpful to go back and clean this up
+// however slightly useful now as I can pass the ISR location and samplingRate direction to the function
 
 void timerINIT(unsigned long ISRlocation, float samplingRate){
 
@@ -384,6 +419,8 @@ void timerINIT(unsigned long ISRlocation, float samplingRate){
 
 }
 
+
+
 void changeFunctions(float samplingRate){
 	EALLOW;
 	ConfigCpuTimer(&CpuTimer1, 150,  1000000*1/samplingRate*.5);
@@ -425,6 +462,9 @@ void outputEnable(){
 	GpioCtrlRegs.GPAMUX2.all |= 0x00000051;
 
 }
+
+//	im dumb, hopefully this is what the lab is looking for
+//	fills in the empty spaces in my original interpolated signal (linearly)
 
 void interpolateAlgorithm(){
 	unsigned int temp;
